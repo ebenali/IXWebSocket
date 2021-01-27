@@ -10,8 +10,10 @@
 #include "IXSocketOpenSSL.h"
 
 #include "IXSocketConnect.h"
+#include "IXUniquePtr.h"
 #include <cassert>
 #include <errno.h>
+#include <vector>
 #ifdef _WIN32
 #include <Shlwapi.h>
 #else
@@ -85,6 +87,7 @@ namespace ix
 
     std::atomic<bool> SocketOpenSSL::_openSSLInitializationSuccessful(false);
     std::once_flag SocketOpenSSL::_openSSLInitFlag;
+    std::vector<std::unique_ptr<std::mutex>> openSSLMutexes;
 
     SocketOpenSSL::SocketOpenSSL(const SocketTLSOptions& tlsOptions, int fd)
         : Socket(fd)
@@ -106,12 +109,37 @@ namespace ix
         if (!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_CONFIG, nullptr)) return;
 #else
         (void) OPENSSL_config(nullptr);
+
+        if (CRYPTO_get_locking_callback() == nullptr)
+        {
+            openSSLMutexes.clear();
+            for (int i = 0; i < CRYPTO_num_locks(); ++i)
+            {
+                openSSLMutexes.push_back(ix::make_unique<std::mutex>());
+            }
+            CRYPTO_set_locking_callback(SocketOpenSSL::openSSLLockingCallback);
+        }
 #endif
 
         (void) OpenSSL_add_ssl_algorithms();
         (void) SSL_load_error_strings();
 
         _openSSLInitializationSuccessful = true;
+    }
+
+    void SocketOpenSSL::openSSLLockingCallback(int mode,
+                                               int type,
+                                               const char* /*file*/,
+                                               int /*line*/)
+    {
+        if (mode & CRYPTO_LOCK)
+        {
+            openSSLMutexes[type]->lock();
+        }
+        else
+        {
+            openSSLMutexes[type]->unlock();
+        }
     }
 
     std::string SocketOpenSSL::getSSLError(int ret)
@@ -481,14 +509,13 @@ namespace ix
                         errMsg += ERR_error_string(sslErr, nullptr);
                         return false;
                     }
-
-                    SSL_CTX_set_verify(
-                        _ssl_context, SSL_VERIFY_PEER, [](int preverify, X509_STORE_CTX*) -> int {
-                            return preverify;
-                        });
-                    SSL_CTX_set_verify_depth(_ssl_context, 4);
                 }
             }
+
+            SSL_CTX_set_verify(_ssl_context,
+                               SSL_VERIFY_PEER,
+                               [](int preverify, X509_STORE_CTX*) -> int { return preverify; });
+            SSL_CTX_set_verify_depth(_ssl_context, 4);
         }
         else
         {

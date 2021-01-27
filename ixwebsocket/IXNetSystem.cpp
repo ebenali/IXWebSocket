@@ -45,7 +45,7 @@ namespace ix
     int poll(struct pollfd* fds, nfds_t nfds, int timeout)
     {
 #ifdef _WIN32
-        int maxfd = 0;
+        socket_t maxfd = 0;
         fd_set readfds, writefds, errorfds;
         FD_ZERO(&readfds);
         FD_ZERO(&writefds);
@@ -105,7 +105,22 @@ namespace ix
 
         return ret;
 #else
-        return ::poll(fds, nfds, timeout);
+        //
+        // It was reported that on Android poll can fail and return -1 with
+        // errno == EINTR, which should be a temp error and should typically
+        // be handled by retrying in a loop.
+        // Maybe we need to put all syscall / C functions in
+        // a new IXSysCalls.cpp and wrap them all.
+        //
+        // The style from libuv is as such.
+        //
+        int ret = -1;
+        do
+        {
+            ret = ::poll(fds, nfds, timeout);
+        } while (ret == -1 && errno == EINTR);
+
+        return ret;
 #endif
     }
 
