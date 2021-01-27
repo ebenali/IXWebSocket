@@ -43,13 +43,13 @@
                                 <a href="../build/" class="nav-link">Build</a>
                             </li>
                             <li class="navitem">
-                                <a href="../cobra/" class="nav-link">Cobra</a>
-                            </li>
-                            <li class="navitem">
                                 <a href="../design/" class="nav-link">Design</a>
                             </li>
                             <li class="navitem active">
                                 <a href="./" class="nav-link">Packages</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../performance/" class="nav-link">Performance</a>
                             </li>
                             <li class="navitem">
                                 <a href="../usage/" class="nav-link">Examples</a>
@@ -71,7 +71,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../usage/" class="nav-link">
+                                <a rel="next" href="../performance/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -112,7 +112,6 @@
 /tmp$ openssl sha512 v9.1.9.tar.gz
 SHA512(v9.1.9.tar.gz)= f1fd731b5f6a9ce6d6d10bee22a5d9d9baaa8ea0564d6c4cd7eb91dcb88a45c49b2c7fdb75f8640a3589c1b30cee33ef5df8dcbb55920d013394d1e33ddd3c8e
 </code></pre>
-
 <p>Now go punch those values in the vcpkg ixwebsocket port config files. Here is what the diff look like.</p>
 <pre><code>vcpkg$ git diff
 diff --git a/ports/ixwebsocket/CONTROL b/ports/ixwebsocket/CONTROL
@@ -140,14 +139,12 @@ index de082aece..68e523a05 100644
 +    SHA512 f1fd731b5f6a9ce6d6d10bee22a5d9d9baaa8ea0564d6c4cd7eb91dcb88a45c49b2c7fdb75f8640a3589c1b30cee33ef5df8dcbb55920d013394d1e33ddd3c8e
  )
 </code></pre>
-
 <p>You will need a fork of the vcpkg repo to make a pull request.</p>
 <pre><code>git fetch upstream
 git co master
 git reset --hard upstream/master
 git push origin master --force
 </code></pre>
-
 <p>Make the pull request (I use a new branch to do that).</p>
 <pre><code>vcpkg$ git co -b feature/ixwebsocket_9.1.9
 M   ports/ixwebsocket/CONTROL
@@ -183,7 +180,6 @@ To https://github.com/bsergean/vcpkg.git
 Branch 'feature/ixwebsocket_9.1.9' set up to track remote branch 'feature/ixwebsocket_9.1.9' from 'origin' by rebasing.
 vcpkg$
 </code></pre>
-
 <p>Just visit this url, https://github.com/bsergean/vcpkg/pull/new/feature/ixwebsocket_9.1.9, printed on the console, to make the pull request.</p></div>
             </div>
         </div>
@@ -213,7 +209,7 @@ vcpkg$
                 </p>
                 <form>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>

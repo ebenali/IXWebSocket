@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Cobra - IXWebSocket</title>
+        <title>Performance - IXWebSocket</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -42,14 +42,14 @@
                             <li class="navitem">
                                 <a href="../build/" class="nav-link">Build</a>
                             </li>
-                            <li class="navitem active">
-                                <a href="./" class="nav-link">Cobra</a>
-                            </li>
                             <li class="navitem">
                                 <a href="../design/" class="nav-link">Design</a>
                             </li>
                             <li class="navitem">
                                 <a href="../packages/" class="nav-link">Packages</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Performance</a>
                             </li>
                             <li class="navitem">
                                 <a href="../usage/" class="nav-link">Examples</a>
@@ -66,12 +66,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../build/" class="nav-link">
+                                <a rel="prev" href="../packages/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../design/" class="nav-link">
+                                <a rel="next" href="../usage/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -93,7 +93,7 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="2"><a href="#general" class="nav-link">General</a>
+            <li class="nav-item" data-level="2"><a href="#websocket-client-performance" class="nav-link">WebSocket Client performance</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -102,76 +102,33 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h2 id="general">General</h2>
-<p><a href="https://github.com/machinezone/cobra">cobra</a> is a real time messaging server. The <code>ws</code> utility can run a cobra server (named snake), and has client to publish and subscribe to a cobra server.</p>
-<p>Bring up 3 terminals and run a server, a publisher and a subscriber in each one. As you publish data you should see it being received by the subscriber. You can run <code>redis-cli MONITOR</code> too to see how redis is being used.</p>
-<h3 id="server">Server</h3>
-<p>You will need to have a redis server running locally. To run the server:</p>
-<pre><code class="bash">$ cd &lt;ixwebsocket-top-level-folder&gt;/ixsnake/ixsnake
-$ ws snake
-{
-  &quot;apps&quot;: {
-    &quot;FC2F10139A2BAc53BB72D9db967b024f&quot;: {
-      &quot;roles&quot;: {
-        &quot;_sub&quot;: {
-          &quot;secret&quot;: &quot;66B1dA3ED5fA074EB5AE84Dd8CE3b5ba&quot;
-        },
-        &quot;_pub&quot;: {
-          &quot;secret&quot;: &quot;1c04DB8fFe76A4EeFE3E318C72d771db&quot;
-        }
-      }
-    }
-  }
-}
-
-redis host: 127.0.0.1
-redis password:
-redis port: 6379
+<h2 id="websocket-client-performance">WebSocket Client performance</h2>
+<p>We will run a client and a server on the same machine, connecting to localhost. This bench is run on a MacBook Pro from 2015. We can receive over 200,000 (small) messages per second, another way to put it is that it takes 5 micro-second to receive and process one message. This is an indication about the minimal latency to receive messages.</p>
+<h3 id="receiving-messages">Receiving messages</h3>
+<p>By using the push_server ws sub-command, the server will send the same message in a loop to any connected client.</p>
+<pre><code>ws push_server -q --send_msg 'yo'
 </code></pre>
-
-<h3 id="publisher">Publisher</h3>
-<pre><code class="bash">$ cd &lt;ixwebsocket-top-level-folder&gt;/ws
-$ ws cobra_publish --appkey FC2F10139A2BAc53BB72D9db967b024f --endpoint ws://127.0.0.1:8008 --rolename _pub --rolesecret 1c04DB8fFe76A4EeFE3E318C72d771db test_channel cobraMetricsSample.json
-[2019-11-27 09:06:12.980] [info] Publisher connected
-[2019-11-27 09:06:12.980] [info] Connection: Upgrade
-[2019-11-27 09:06:12.980] [info] Sec-WebSocket-Accept: zTtQKMKbvwjdivURplYXwCVUCWM=
-[2019-11-27 09:06:12.980] [info] Sec-WebSocket-Extensions: permessage-deflate; server_max_window_bits=15; client_max_window_bits=15
-[2019-11-27 09:06:12.980] [info] Server: ixwebsocket/7.4.0 macos ssl/DarwinSSL zlib 1.2.11
-[2019-11-27 09:06:12.980] [info] Upgrade: websocket
-[2019-11-27 09:06:12.982] [info] Publisher authenticated
-[2019-11-27 09:06:12.982] [info] Published msg 3
-[2019-11-27 09:06:12.982] [info] Published message id 3 acked
-</code></pre>
-
-<h3 id="subscriber">Subscriber</h3>
-<pre><code class="bash">$ ws cobra_subscribe --appkey FC2F10139A2BAc53BB72D9db967b024f --endpoint ws://127.0.0.1:8008 --rolename _pub --rolesecret 1c04DB8fFe76A4EeFE3E318C72d771db test_channel
-#messages 0 msg/s 0
-[2019-11-27 09:07:39.341] [info] Subscriber connected
-[2019-11-27 09:07:39.341] [info] Connection: Upgrade
-[2019-11-27 09:07:39.341] [info] Sec-WebSocket-Accept: 9vkQWofz49qMCUlTSptCCwHWm+Q=
-[2019-11-27 09:07:39.341] [info] Sec-WebSocket-Extensions: permessage-deflate; server_max_window_bits=15; client_max_window_bits=15
-[2019-11-27 09:07:39.341] [info] Server: ixwebsocket/7.4.0 macos ssl/DarwinSSL zlib 1.2.11
-[2019-11-27 09:07:39.341] [info] Upgrade: websocket
-[2019-11-27 09:07:39.342] [info] Subscriber authenticated
-[2019-11-27 09:07:39.345] [info] Subscriber: subscribed to channel test_channel
-#messages 0 msg/s 0
-#messages 0 msg/s 0
-#messages 0 msg/s 0
-{&quot;baz&quot;:123,&quot;foo&quot;:&quot;bar&quot;}
-
-#messages 1 msg/s 1
-#messages 1 msg/s 0
-#messages 1 msg/s 0
-{&quot;baz&quot;:123,&quot;foo&quot;:&quot;bar&quot;}
-
-{&quot;baz&quot;:123,&quot;foo&quot;:&quot;bar&quot;}
-
-#messages 3 msg/s 2
-#messages 3 msg/s 0
-{&quot;baz&quot;:123,&quot;foo&quot;:&quot;bar&quot;}
-
-#messages 4 msg/s 1
-^C
+<p>By using the echo_client ws sub-command, with the -m (mute or no_send), we will display statistics on how many messages we can receive per second.</p>
+<pre><code>$ ws echo_client -m ws://localhost:8008
+[2020-08-02 12:31:17.284] [info] ws_echo_client: connected
+[2020-08-02 12:31:17.284] [info] Uri: /
+[2020-08-02 12:31:17.284] [info] Headers:
+[2020-08-02 12:31:17.284] [info] Connection: Upgrade
+[2020-08-02 12:31:17.284] [info] Sec-WebSocket-Accept: byy/pMK2d0PtRwExaaiOnXJTQHo=
+[2020-08-02 12:31:17.284] [info] Server: ixwebsocket/10.1.4 macos ssl/SecureTransport zlib 1.2.11
+[2020-08-02 12:31:17.284] [info] Upgrade: websocket
+[2020-08-02 12:31:17.663] [info] messages received: 0 per second 2595307 total
+[2020-08-02 12:31:18.668] [info] messages received: 79679 per second 2674986 total
+[2020-08-02 12:31:19.668] [info] messages received: 207438 per second 2882424 total
+[2020-08-02 12:31:20.673] [info] messages received: 209207 per second 3091631 total
+[2020-08-02 12:31:21.676] [info] messages received: 216056 per second 3307687 total
+[2020-08-02 12:31:22.680] [info] messages received: 214927 per second 3522614 total
+[2020-08-02 12:31:23.684] [info] messages received: 216960 per second 3739574 total
+[2020-08-02 12:31:24.688] [info] messages received: 215232 per second 3954806 total
+[2020-08-02 12:31:25.691] [info] messages received: 212300 per second 4167106 total
+[2020-08-02 12:31:26.694] [info] messages received: 212501 per second 4379607 total
+[2020-08-02 12:31:27.699] [info] messages received: 212330 per second 4591937 total
+[2020-08-02 12:31:28.702] [info] messages received: 216511 per second 4808448 total
 </code></pre></div>
             </div>
         </div>
@@ -201,7 +158,7 @@ $ ws cobra_publish --appkey FC2F10139A2BAc53BB72D9db967b024f --endpoint ws://127
                 </p>
                 <form>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>

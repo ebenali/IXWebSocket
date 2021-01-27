@@ -43,13 +43,13 @@
                                 <a href="build/" class="nav-link">Build</a>
                             </li>
                             <li class="navitem">
-                                <a href="cobra/" class="nav-link">Cobra</a>
-                            </li>
-                            <li class="navitem">
                                 <a href="design/" class="nav-link">Design</a>
                             </li>
                             <li class="navitem">
                                 <a href="packages/" class="nav-link">Packages</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="performance/" class="nav-link">Performance</a>
                             </li>
                             <li class="navitem">
                                 <a href="usage/" class="nav-link">Examples</a>
@@ -122,7 +122,6 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<p><img alt="Build status" src="https://github.com/machinezone/IXWebSocket/workflows/unittest/badge.svg" /></p>
 <h2 id="introduction">Introduction</h2>
 <p><a href="https://en.wikipedia.org/wiki/WebSocket"><em>WebSocket</em></a> is a computer communications protocol, providing full-duplex and bi-directionnal communication channels over a single TCP connection. <em>IXWebSocket</em> is a C++ library for client and server Websocket communication, and for client and server HTTP communication. <em>TLS</em> aka <em>SSL</em> is supported. The code is derived from <a href="https://github.com/dhbaird/easywsclient">easywsclient</a> and from the <a href="https://github.com/satori-com/satori-rtm-sdk-c">Satori C SDK</a>. It has been tested on the following platforms.</p>
 <ul>
@@ -134,7 +133,7 @@
 <li>FreeBSD</li>
 </ul>
 <h2 id="example-code">Example code</h2>
-<pre><code class="c++">// Required on Windows
+<pre><code class="language-c++">// Required on Windows
 ix::initNetSystem();
 
 // Our websocket object
@@ -159,7 +158,6 @@ webSocket.start();
 // Send a message to the server (default to TEXT mode)
 webSocket.send(&quot;hello world&quot;);
 </code></pre>
-
 <h2 id="why-another-library">Why another library?</h2>
 <p>There are 2 main reasons that explain why IXWebSocket got written. First, we needed a C++ cross-platform client library, which should have few dependencies. What looked like the most solid one, <a href="https://github.com/zaphoyd/websocketpp">websocketpp</a> did depend on boost and this was not an option for us. Secondly, there were other available libraries with fewer dependencies (C ones), but they required calling an explicit poll routine periodically to know if a client had received data from a server, which was not elegant.</p>
 <p>We started by solving those 2 problems, then we added server websocket code, then an HTTP client, and finally a very simple HTTP server. IXWebSocket comes with a command line utility named ws which is quite handy, and is now packaged with alpine linux. You can install it with <code>apk add ws</code>.</p>
@@ -208,7 +206,7 @@ webSocket.send(&quot;hello world&quot;);
                 </p>
                 <form>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>
@@ -262,6 +260,6 @@ webSocket.send(&quot;hello world&quot;);
 </html>
 
 <!--
-MkDocs version : 1.1
-Build Date UTC : 2020-04-29 18:54:07
+MkDocs version : 1.1.2
+Build Date UTC : 2021-01-27 01:29:45.605306+00:00
 -->

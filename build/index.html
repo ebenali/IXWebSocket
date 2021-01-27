@@ -43,13 +43,13 @@
                                 <a href="./" class="nav-link">Build</a>
                             </li>
                             <li class="navitem">
-                                <a href="../cobra/" class="nav-link">Cobra</a>
-                            </li>
-                            <li class="navitem">
                                 <a href="../design/" class="nav-link">Design</a>
                             </li>
                             <li class="navitem">
                                 <a href="../packages/" class="nav-link">Packages</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../performance/" class="nav-link">Performance</a>
                             </li>
                             <li class="navitem">
                                 <a href="../usage/" class="nav-link">Examples</a>
@@ -71,7 +71,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../cobra/" class="nav-link">
+                                <a rel="next" href="../design/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -111,18 +111,19 @@ cmake -DUSE_TLS=1 ..
 make -j
 make install # will install to /usr/local on Unix, on macOS it is a good idea to sudo chown -R `whoami`:staff /usr/local
 </code></pre>
-
 <p>Headers and a static library will be installed to the target dir.
 There is a unittest which can be executed by typing <code>make test</code>.</p>
 <p>Options for building:</p>
 <ul>
+<li><code>-DUSE_ZLIB=1</code> will enable zlib support, required for http client + server + websocket per message deflate extension</li>
 <li><code>-DUSE_TLS=1</code> will enable TLS support</li>
 <li><code>-DUSE_OPEN_SSL=1</code> will use <a href="https://www.openssl.org/">openssl</a> for the TLS support (default on Linux and Windows)</li>
 <li><code>-DUSE_MBED_TLS=1</code> will use <a href="https://tls.mbed.org/">mbedlts</a> for the TLS support</li>
 <li><code>-DUSE_WS=1</code> will build the ws interactive command line tool</li>
 <li><code>-DUSE_TEST=1</code> will build the unittest</li>
+<li><code>-DUSE_PYTHON=1</code> will use Python3 for cobra bots, require Python3 to be installed.</li>
 </ul>
-<p>If you are on Windows, look at the <a href="https://github.com/machinezone/IXWebSocket/blob/master/appveyor.yml">appveyor</a> file (not maintained much though) or rather the <a href="https://github.com/machinezone/IXWebSocket/blob/master/.github/workflows/ccpp.yml#L40">github actions</a> which have instructions for building dependencies.</p>
+<p>If you are on Windows, look at the <a href="https://github.com/machinezone/IXWebSocket/blob/master/appveyor.yml">appveyor</a> file (not maintained much though) or rather the <a href="https://github.com/machinezone/IXWebSocket/blob/master/.github/workflows/unittest_windows.yml">github actions</a> which have instructions for building dependencies.</p>
 <p>It is also possible to externally include the project, so that everything is fetched over the wire when you build like so:</p>
 <pre><code>    ExternalProject_Add(
         IXWebSocket
@@ -130,12 +131,22 @@ There is a unittest which can be executed by typing <code>make test</code>.</p>
         ...
     )
 </code></pre>
-
 <h3 id="vcpkg">vcpkg</h3>
 <p>It is possible to get IXWebSocket through Microsoft <a href="https://github.com/microsoft/vcpkg">vcpkg</a>.</p>
 <pre><code>vcpkg install ixwebsocket
 </code></pre>
+<p>To use the installed package within a cmake project, use the following:</p>
+<pre><code class="language-cmake"> set(CMAKE_TOOLCHAIN_FILE &quot;$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake&quot; CACHE STRING &quot;&quot;) # this is super important in order for cmake to include the vcpkg search/lib paths!
 
+ # find library and its headers
+ find_path(IXWEBSOCKET_INCLUDE_DIR ixwebsocket/IXWebSocket.h)
+ find_library(IXWEBSOCKET_LIBRARY ixwebsocket)
+ # include headers
+ include_directories(${IXWEBSOCKET_INCLUDE_DIR})
+ # ...
+ target_link_libraries(${PROJECT_NAME} ... ${IXWEBSOCKET_LIBRARY}) # Cmake will automatically fail the generation if the lib was not found, i.e is set to NOTFOUNS
+
+</code></pre>
 <h3 id="conan">Conan</h3>
 <p><a href="https://bintray.com/conan/conan-center/ixwebsocket%3A_/_latestVersion"> <img alt="Download" src="https://api.bintray.com/packages/conan/conan-center/ixwebsocket%3A_/images/download.svg" /> </a></p>
 <p>Conan is currently supported through a recipe in <a href="https://github.com/conan-io/conan-center-index/tree/master/recipes/ixwebsocket">Conan Center</a> (<a href="https://bintray.com/conan/conan-center/ixwebsocket%3A_">Bintray entry</a>).</p>
@@ -149,7 +160,6 @@ There is a unittest which can be executed by typing <code>make test</code>.</p>
 <p>There is a Dockerfile for running the unittest on Linux, and to run the <code>ws</code> tool. It is also available on the docker registry.</p>
 <pre><code>docker run docker.pkg.github.com/machinezone/ixwebsocket/ws:latest --help
 </code></pre>
-
 <p>To use docker-compose you must make a docker container first.</p>
 <pre><code>$ make docker
 ...
@@ -188,7 +198,7 @@ ws is a websocket tool
                 </p>
                 <form>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>
