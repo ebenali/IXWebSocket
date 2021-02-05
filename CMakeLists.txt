@@ -210,7 +210,7 @@ endif()
 find_package(Deflate)
 if (DEFLATE_FOUND)
   include_directories(${DEFLATE_INCLUDE_DIRS})
-  target_link_libraries(ixwebsocket ${DEFLATE_LIBRARIES})
+  target_link_libraries(ixwebsocket PUBLIC ${DEFLATE_LIBRARIES})
   target_compile_definitions(ixwebsocket PUBLIC IXWEBSOCKET_USE_DEFLATE)
 endif()
 
